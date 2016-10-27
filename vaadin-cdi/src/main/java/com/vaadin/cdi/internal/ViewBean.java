@@ -21,16 +21,21 @@ import java.lang.reflect.Type;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.enterprise.context.spi.Contextual;
 import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.inject.spi.PassivationCapable;
 
 import com.vaadin.ui.UI;
+import org.apache.deltaspike.core.util.context.ContextualStorage;
 
 public class ViewBean extends ViewContextual implements Bean, PassivationCapable {
 
+    private static final String PASSIVATION_ID_PREFIX = "com.vaadin.cdi.internal.ViewBean#";
+
     public ViewBean(Bean delegate, long sessionId, int uiId,
-            String viewIdentifier) {
+                    String viewIdentifier) {
         super(delegate, sessionId, uiId, viewIdentifier);
     }
 
@@ -106,8 +111,7 @@ public class ViewBean extends ViewContextual implements Bean, PassivationCapable
 
     @Override
     public String getId() {
-        StringBuilder sb = new StringBuilder(
-                "com.vaadin.cdi.internal.ViewBean#");
+        StringBuilder sb = new StringBuilder(PASSIVATION_ID_PREFIX);
         sb.append(uiId);
         sb.append("#");
         sb.append(sessionId);
@@ -134,6 +138,22 @@ public class ViewBean extends ViewContextual implements Bean, PassivationCapable
             sb.append(getBeanClass().getCanonicalName());
         }
         return sb.toString();
+    }
+
+    public static ViewBean recover(String passivationId, BeanManager beanManager) {
+        if (passivationId.startsWith(PASSIVATION_ID_PREFIX)) {
+            final String[] idParts = passivationId.split("#", 5);
+            if (idParts.length == 5) {
+                Bean<?> delegate = beanManager.getPassivationCapableBean(idParts[4]);
+                if (delegate != null) {
+                    int uiId = Integer.parseInt(idParts[1]);
+                    long sessionId = Long.parseLong(idParts[2]);
+                    String viewName = idParts[3];
+                    return new ViewBean(delegate, sessionId, uiId, viewName);
+                }
+            }
+        }
+        return null;
     }
 
     private Logger getLogger() {
