@@ -20,9 +20,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Set;
 
-import javax.enterprise.context.spi.Contextual;
 import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.inject.spi.PassivationCapable;
 
@@ -131,18 +129,4 @@ public class UIBean extends UIContextual implements Bean, PassivationCapable {
         return sb.toString();
     }
 
-    public static UIBean recover(String passivationId, BeanManager beanManager) {
-        if (passivationId.startsWith(PASSIVATION_ID_PREFIX)) {
-            final String[] idParts = passivationId.split("#", 4);
-            if (idParts.length == 4) {
-                Bean<?> delegate = beanManager.getPassivationCapableBean(idParts[3]);
-                if (delegate != null) {
-                    long sessionId = Long.parseLong(idParts[1]);
-                    int uiId = Integer.parseInt(idParts[2]);
-                    return new UIBean(delegate, sessionId, uiId);
-                }
-            }
-        }
-        return null;
-    }
 }
