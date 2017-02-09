@@ -52,11 +52,16 @@ public class ViewScopedContext extends AbstractVaadinContext {
 
     @Override
     protected <T> Contextual<T> wrapBean(Contextual<T> bean) {
-        if(!(bean instanceof UIContextual) && bean instanceof Bean && View.class.isAssignableFrom(((Bean) bean).getBeanClass())) {
+        if(!(bean instanceof UIContextual) && bean instanceof Bean && isBeanOfView((Bean) bean)) {
             String mapping = Conventions.deriveMappingForView(((Bean) bean).getBeanClass());
             return new ViewBean((Bean) bean, mapping);
         }
         return bean;
+    }
+
+    private boolean isBeanOfView(Bean bean) {
+        return bean.getTypes().stream()
+                .anyMatch(t -> t instanceof Class && View.class.isAssignableFrom((Class) t));
     }
 
     @Override

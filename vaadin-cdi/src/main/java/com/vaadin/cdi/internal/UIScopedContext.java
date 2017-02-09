@@ -46,10 +46,15 @@ public class UIScopedContext extends AbstractVaadinContext {
 
     @Override
     protected <T> Contextual<T> wrapBean(Contextual<T> bean) {
-        if(!(bean instanceof UIContextual) && bean instanceof Bean && UI.class.isAssignableFrom(((Bean) bean).getBeanClass())) {
+        if(!(bean instanceof UIContextual) && bean instanceof Bean && isBeanOfUI(((Bean) bean))) {
             return new UIBean((Bean) bean);
         }
         return bean;
+    }
+
+    private boolean isBeanOfUI(Bean bean) {
+        return bean.getTypes().stream()
+                .anyMatch(t -> t instanceof Class && UI.class.isAssignableFrom((Class) t));
     }
 
     @Override
