@@ -2,9 +2,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.vaadin</groupId>
-    <artifactId>vaadin-cdi</artifactId>
-    <version>2.0-SNAPSHOT</version>
+    <groupId>com.wcs.vaadin</groupId>
+    <artifactId>vaadin-cdi-wcs</artifactId>
+    <version>1.0</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -12,7 +12,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- In addition to POMs, these version numbers are in ArchiveProvider for tests -->
-        <vaadin.version>8.0-SNAPSHOT</vaadin.version>
+        <vaadin.version>7.7.5</vaadin.version>
         <deltaspike.version>1.7.2</deltaspike.version>
 
         <!-- Testing dependencies -->
