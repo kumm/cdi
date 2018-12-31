@@ -81,7 +81,7 @@ abstract public class AbstractCdiTest extends ChromeBrowserTest {
     }
 
     protected void resetCounts() throws IOException {
-        slurp("?resetCounts");
+        slurp("?resetCounts=true");
     }
 
     protected int getCount(String id) throws IOException {
