@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
+import javax.enterprise.context.Dependent;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Vetoed;
@@ -45,6 +46,7 @@ public class CdiInstantiatorTest {
     public static class SomeCdiBean {
     }
 
+    @Dependent
     public static class ParentBean {
 
         @Inject
@@ -60,10 +62,12 @@ public class CdiInstantiatorTest {
     public static class NotACdiBean extends ParentBean {
     }
 
+    @Dependent
     public static class Ambiguous extends ParentBean {
     }
 
     @VaadinServiceEnabled
+    @Dependent
     public static class I18NTestProvider implements I18NProvider {
 
         @Override

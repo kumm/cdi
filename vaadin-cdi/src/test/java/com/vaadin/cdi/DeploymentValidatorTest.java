@@ -39,6 +39,8 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.Vetoed;
 import javax.inject.Inject;
@@ -80,6 +82,7 @@ public class DeploymentValidatorTest {
     }
 
     @RouteScopeOwner(RouteTargetOfSelf.class)
+    @Dependent
     public static class NonRouteScopedHaveOwner {
     }
 
@@ -138,6 +141,21 @@ public class DeploymentValidatorTest {
 
     @Vetoed
     public static class ProducedRouteScopedBeanWithoutOwner {
+    }
+
+    @ApplicationScoped
+    public static class TestProducer {
+        @Produces
+        @NormalUIScoped
+        private ProducedNormalScopedComponent getProducedComponent() {
+            return new ProducedNormalScopedComponent();
+        }
+
+        @Produces
+        @NormalRouteScoped
+        private ProducedRouteScopedBeanWithoutOwner getProducedRouteScopedBeanWithoutOwner() {
+            return new ProducedRouteScopedBeanWithoutOwner();
+        }
     }
 
     private static class ProblemId {
@@ -267,18 +285,6 @@ public class DeploymentValidatorTest {
                 // Tests are not interested in it.
                 .filter(beanInfo -> !beanInfo.getBaseType().equals(Object.class))
                 .collect(Collectors.toMap(BeanInfo::getBaseType, Function.identity()));
-    }
-
-    @Produces
-    @NormalUIScoped
-    private ProducedNormalScopedComponent getProducedComponent() {
-        return new ProducedNormalScopedComponent();
-    }
-
-    @Produces
-    @NormalRouteScoped
-    private ProducedRouteScopedBeanWithoutOwner getProducedRouteScopedBeanWithoutOwner() {
-        return new ProducedRouteScopedBeanWithoutOwner();
     }
 
     private static Logger getLogger() {
