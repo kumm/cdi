@@ -90,4 +90,15 @@ abstract class AbstractContextualStorageManager<K> implements Serializable  {
         return Collections.unmodifiableSet(storageMap.keySet());
     }
 
+    public void move(AbstractContextualStorageManager<K> sourceMgr, K key) {
+        ContextualStorage storage = sourceMgr.storageMap.remove(key);
+        if (storage != null) {
+            storageMap.put(key, storage);
+        }
+    }
+
+    public AbstractContextualStorageManager<K> getSelf() {
+        return this;
+    }
+
 }

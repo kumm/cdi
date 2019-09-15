@@ -19,17 +19,26 @@ package com.vaadin.cdi.context;
 import com.vaadin.cdi.annotation.NormalUIScoped;
 import com.vaadin.cdi.annotation.RouteScopeOwner;
 import com.vaadin.cdi.annotation.RouteScoped;
+import com.vaadin.flow.internal.CurrentInstance;
 import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.BeforePreserveEvent;
+import com.vaadin.flow.server.UIInitEvent;
+
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.util.context.AbstractContext;
 import org.apache.deltaspike.core.util.context.ContextualStorage;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.spi.Contextual;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.PassivationCapable;
+import javax.inject.Inject;
+
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -64,6 +73,28 @@ public class RouteScopedContext extends AbstractContext {
             missingFromChain.forEach(this::destroy);
         }
 
+    }
+
+    @ApplicationScoped
+    public static class BeforePreserveObserver implements Serializable {
+        @Inject
+        private ContextualStorageManager csm;
+        @Inject
+        private BeanManager bm;
+
+        private void registerOnUIInit(@Observes UIInitEvent event) {
+            event.getUI().addBeforePreserveListener(this::onBeforePreserve);
+        }
+
+        private void onBeforePreserve(BeforePreserveEvent event) {
+            Map<Class<?>, CurrentInstance> currentInstances =
+                    CurrentInstance.setCurrent(event.getSourceUi());
+            AbstractContextualStorageManager<Class> sourceCsm = csm.getSelf();
+            CurrentInstance.restoreInstances(currentInstances);
+            event.getChain().forEach(scopeOwner
+                    -> csm.move(sourceCsm, scopeOwner.getClass()));
+            bm.fireEvent(event);
+        }
     }
 
     private ContextualStorageManager contextManager;
